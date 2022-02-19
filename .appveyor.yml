@@ -22,6 +22,7 @@ install:
   - set PATH=%QTDIR%\bin;%PATH%
   - set Qt%QT_MAJOR%_DIR=%QTDIR%\lib\cmake\Qt%QT_MAJOR%
   - set PATH=%PATH:C:\Program Files\Git\usr\bin=% # trick to remove sh.exe
+  - set PATH=%PATH%;C:\Program Files\Java\jdk17
 
 before_build:
   - mkdir build
