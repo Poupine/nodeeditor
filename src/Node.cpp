@@ -56,9 +56,11 @@ save() const
   nodeJson["model"] = _nodeDataModel->save();
 
   QJsonObject obj;
-  obj["x"] = _nodeGraphicsObject->pos().x();
-  obj["y"] = _nodeGraphicsObject->pos().y();
-  nodeJson["position"] = obj;
+  if (_nodeGraphicsObject) {
+    obj["x"] = _nodeGraphicsObject->pos().x();
+    obj["y"] = _nodeGraphicsObject->pos().y();
+    nodeJson["position"] = obj;
+  }
 
   return nodeJson;
 }
@@ -73,7 +75,8 @@ restore(QJsonObject const& json)
   QJsonObject positionJson = json["position"].toObject();
   QPointF     point(positionJson["x"].toDouble(),
                     positionJson["y"].toDouble());
-  _nodeGraphicsObject->setPos(point);
+  if (_nodeGraphicsObject)
+    _nodeGraphicsObject->setPos(point);
 
   _nodeDataModel->restore(json["model"].toObject());
 }
@@ -93,17 +96,19 @@ reactToPossibleConnection(PortType reactingPortType,
                           NodeDataType const &reactingDataType,
                           QPointF const &scenePoint)
 {
-  QTransform const t = _nodeGraphicsObject->sceneTransform();
+  if (_nodeGraphicsObject) {
+    QTransform const t = _nodeGraphicsObject->sceneTransform();
 
-  QPointF p = t.inverted().map(scenePoint);
+    QPointF p = t.inverted().map(scenePoint);
 
-  _nodeGeometry.setDraggingPosition(p);
+    _nodeGeometry.setDraggingPosition(p);
 
-  _nodeGraphicsObject->update();
+    _nodeGraphicsObject->update();
 
-  _nodeState.setReaction(NodeState::REACTING,
-                         reactingPortType,
-                         reactingDataType);
+    _nodeState.setReaction(NodeState::REACTING,
+                          reactingPortType,
+                          reactingDataType);
+  }
 }
 
 
@@ -112,7 +117,8 @@ Node::
 resetReactionToConnection()
 {
   _nodeState.setReaction(NodeState::NOT_REACTING);
-  _nodeGraphicsObject->update();
+  if (_nodeGraphicsObject)
+    _nodeGraphicsObject->update();
 }
 
 
@@ -190,10 +196,12 @@ propagateData(std::shared_ptr<NodeData> nodeData,
   _nodeDataModel->setInData(std::move(nodeData), inPortIndex);
 
   //Recalculate the nodes visuals. A data change can result in the node taking more space than before, so this forces a recalculate+repaint on the affected node
-  _nodeGraphicsObject->setGeometryChanged();
-  _nodeGeometry.recalculateSize();
-  _nodeGraphicsObject->update();
-  _nodeGraphicsObject->moveConnections();
+  if (_nodeGraphicsObject) {
+    _nodeGraphicsObject->setGeometryChanged();
+    _nodeGeometry.recalculateSize();
+    _nodeGraphicsObject->update();
+    _nodeGraphicsObject->moveConnections();
+  }
 }
 
 
