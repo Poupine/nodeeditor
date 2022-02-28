@@ -5,6 +5,7 @@
 #include <QtCore/QMetaObject>
 
 #include <limits>
+#include <tuple>
 
 /**
  * @file
